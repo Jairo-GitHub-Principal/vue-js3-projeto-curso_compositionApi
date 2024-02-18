@@ -25,7 +25,8 @@ import TodoForm from "./components/TodoForm.vue";
 import TodoSpinner from "./components/TodoSpinner.vue";
 import TodoItems from "./components/TodoItems.vue";
 import TodoEmpty from "./components/TodoEmpty.vue";
-
+import { ref } from 'vue';
+import{useStore}from 'vuex';
 
 export default {
   name: "App",
@@ -36,22 +37,25 @@ export default {
     TodoEmpty,
   },
 
-  data() {
-    return {
-      loading: false,
-    };
-  },
-  created() {
-    this.loading=true // faz o sinal de carregamento do loading aparacer
-    this.$store.dispatch('getTodos') // aqui fazemos o dispatch  da action obs.: la no store, usamos store direto aqui temos que usar $store com o $ na frete da declaração
-    this.loading = false // faz o sinal de carregamento do loading sumir e aparece então o conteudo que deve ser exiibido
+  setup(){
+    const loading = ref(false);
+    const store = useStore()
+
+    loading.value=true // faz o sinal de carregamento do loading aparacer
+    store.dispatch('getTodos').finally(()=>{  // aqui fazemos o dispatch  da action obs.: la no store, usamos store direto aqui temos que usar $store com o $ na frete da declaração
+      loading.value = false // faz o sinal de carregamento do loading sumir e aparece então o conteudo que deve ser exiibido
+    }) 
+   
     console.log('fim settimeout')
     /** 
      * O Dispatch é um método simples do Store, que tem como responsabilidade
      *  enviar a Action ao Reducer. Sua sintaxe é extremamente simples, chamamos
      *  o método . dispatch() e passamos por parâmetro a Action a ser enviada.
      */
-    
-  },
+
+      return{
+        loading,
+      }
+  } 
 };
 </script>
