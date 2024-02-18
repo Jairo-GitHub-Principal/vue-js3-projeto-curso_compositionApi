@@ -73,52 +73,68 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import{useStore}from 'vuex';
     export default {
-        props:{
+        props:{ 
             todo:{
                 type:Object,
                 default:()=>({}),
             }
         },
-        data() {
-          return {
-            title:this.todo.title,
-            isCompleted: this.todo.completed
-          }
-        },
-        methods:{
-           onTitleChange(){  // aqui temos o metodo update, que vai receber os dados digitados pelo usuario , e enviar para nossa store, para que os mesmos sejam percistidos no nosso DB
-             // aqui o valor atual na imput, é passado como parametro, e é add na const newTiitle, e é atribuido como novo valor da propriedade title da nossa "todos"
 
-            if(!this.title){
-              return;
-            }
-            this.updateTodo()
-           
-            console.log(this.title)
-          },
+        setup(props){
+          const store = useStore();
+          const title = ref(props.todo.title)
+          const isCompleted = ref(props.todo.completed)
 
-          updateTodo(){
-            const payload ={ // objeto que contem que tem todas as propriedade da todo, que sera atualizada
-              id:this.todo.id,
+
+          // update
+
+          const updateTodo=()=>{
+            const payload ={ // objeto que contem todas as propriedade da todo, que sera atualizada
+              id:props.todo.id,
               data:{
-                title:this.title,
-                completed: this.isCompleted
+                title:title.value,
+                completed: isCompleted.value
 
               }
             }
-            this.$store.dispatch('updateTodo',payload) // cahma o metod  updateTodo, no arquiivo index da nossa store e passa pra ele o objeto payload, que tem os novos dados para ser percistiidos , no DB e atualiiza a base de dados existentes, 
-          },
-          onCheckClick(){
-            this.isCompleted = !this.isCompleted
-            this.updateTodo()
-          },
+            store.dispatch('updateTodo',payload) // cahma o metod  updateTodo, no arquiivo index da nossa store e passa pra ele o objeto payload, que tem os novos dados para ser percistiidos , no DB e atualiiza a base de dados existentes, 
+          }
+
+
+
+          const onTitleChange=()=>{  // aqui temos o metodo update, que vai receber os dados digitados pelo usuario , e enviar para nossa store, para que os mesmos sejam percistidos no nosso DB
+             // aqui o valor atual na imput, é passado como parametro, e é add na const newTiitle, e é atribuido como novo valor da propriedade title da nossa "todos"
+
+            if(!title.value){
+              return;
+            }
+            updateTodo()
+           
+            console.log(title.value) // para testar o valor de title, e velo no console
+          }
+
+          
+          const onCheckClick = ()=>{ 
+            isCompleted.value = !isCompleted.value
+            updateTodo()
+          }
 
           // delete
-
-          onDelete(){
-            this.$store.dispatch('deleteTodo', this.todo.id)
+          const  onDelete =()=>{
+            store.dispatch('deleteTodo', props.todo.id)
           }
+
+          return{
+            title,
+            isCompleted,
+            onTitleChange,
+            onCheckClick,           
+            onDelete,
+          }
+
         }
     }
 </script>
